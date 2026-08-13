@@ -25,25 +25,13 @@ function createApp() {
   app.set('trust proxy', 1); // needed for correct client IPs behind a proxy/load balancer (rate limiting)
 
   app.use(helmet());
-  // CLIENT_URL may hold one or more comma-separated production origins.
-  // Common local dev ports are always allowed too, so local frontend work
-  // against a deployed API doesn't require touching the hosting env vars.
-  const configuredOrigins = (process.env.CLIENT_URL || '')
-    .split(',')
-    .map((o) => o.trim())
-    .filter(Boolean);
-  const devOrigins = ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'];
-  const allowedOrigins = [...new Set([...configuredOrigins, ...devOrigins])];
-
+  // Open CORS: any origin is allowed. `origin: true` reflects the request's
+  // own Origin back in Access-Control-Allow-Origin (a bare '*' can't be
+  // combined with credentials: true per the CORS spec), so every client is
+  // accepted without needing to configure allowed origins anywhere.
   app.use(
     cors({
-      origin(origin, callback) {
-        // No Origin header (curl, server-to-server, health checks) is always allowed.
-        if (!origin || allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
-        callback(new Error(`CORS: origin '${origin}' is not allowed.`));
-      },
+      origin: true,
       credentials: true,
     })
   );
