@@ -137,4 +137,24 @@ async function login(req, res, next) {
   }
 }
 
-module.exports = { signup, verifyEmail, resendVerification, login };
+/** PUT /api/auth/change-password (any authenticated role) */
+async function changePassword(req, res, next) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id).select('+passwordHash');
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      throw new ApiError(401, 'Current password is incorrect.');
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signup, verifyEmail, resendVerification, login, changePassword };

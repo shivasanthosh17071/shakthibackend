@@ -11,6 +11,7 @@ const orderRoutes = require('./src/routes/orderRoutes');
 const sellerRoutes = require('./src/routes/sellerRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const newsletterRoutes = require('./src/routes/newsletterRoutes');
 
 const { notFound, errorHandler } = require('./src/middleware/errorHandler');
 
@@ -54,6 +55,7 @@ function createApp() {
   app.use('/api/seller', sellerRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/uploads', uploadRoutes);
+  app.use('/api/newsletter', newsletterRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

@@ -1,13 +1,15 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const { signup, verifyEmail, resendVerification, login } = require('../controllers/authController');
+const { signup, verifyEmail, resendVerification, login, changePassword } = require('../controllers/authController');
 const {
   signupValidator,
   loginValidator,
   verifyEmailValidator,
   resendVerificationValidator,
+  changePasswordValidator,
 } = require('../validators/authValidators');
 const validate = require('../middleware/validate');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -26,5 +28,6 @@ router.post('/signup', signupValidator, validate, signup);
 router.get('/verify-email', verifyEmailValidator, validate, verifyEmail);
 router.post('/resend-verification', resendVerificationValidator, validate, resendVerification);
 router.post('/login', loginValidator, validate, login);
+router.put('/change-password', auth, changePasswordValidator, validate, changePassword);
 
 module.exports = router;

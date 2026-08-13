@@ -214,6 +214,16 @@ function orderDeliveredTemplate({ name, paintingTitle, orderUrl }) {
   };
 }
 
+function newsletterAdminNotifyTemplate({ email }) {
+  return {
+    subject: `New newsletter subscriber: ${email}`,
+    html: baseLayout({
+      title: 'New newsletter subscriber',
+      bodyHtml: `<p><strong>${email}</strong> just subscribed to Gallery Notes.</p>`,
+    }),
+  };
+}
+
 module.exports = {
   verifyEmailTemplate,
   sellerApplicationReceivedTemplate,
@@ -226,4 +236,5 @@ module.exports = {
   paymentRejectedTemplate,
   orderShippedTemplate,
   orderDeliveredTemplate,
+  newsletterAdminNotifyTemplate,
 };

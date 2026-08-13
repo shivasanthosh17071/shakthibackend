@@ -11,7 +11,7 @@ const router = express.Router();
 // any authenticated user — ownership is checked inside the controller).
 router.post('/', auth, role(['buyer']), createOrderValidator, validate, createOrder);
 router.post('/:id/payment-proof', auth, role(['buyer']), submitPaymentProof);
-router.get('/my', auth, role(['buyer']), listMyOrders);
+router.get('/my', auth, listMyOrders);
 router.get('/:id', auth, getOrder); // buyer owner, seller owner, or admin — enforced in controller
 
 module.exports = router;

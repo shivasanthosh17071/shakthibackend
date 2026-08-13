@@ -20,9 +20,15 @@ const resendVerificationValidator = [
   body('email').isEmail().withMessage('A valid email is required.').normalizeEmail(),
 ];
 
+const changePasswordValidator = [
+  body('currentPassword').notEmpty().withMessage('Current password is required.'),
+  body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters.'),
+];
+
 module.exports = {
   signupValidator,
   loginValidator,
   verifyEmailValidator,
   resendVerificationValidator,
+  changePasswordValidator,
 };
