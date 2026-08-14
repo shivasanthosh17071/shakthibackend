@@ -28,6 +28,11 @@ async function auth(req, res, next) {
     if (!user) {
       return res.status(401).json({ message: 'User no longer exists.' });
     }
+    if (user.blocked) {
+      return res.status(403).json({
+        message: `Your account has been blocked.${user.blockReason ? ` Reason: ${user.blockReason}` : ''}`,
+      });
+    }
 
     req.user = user;
     next();

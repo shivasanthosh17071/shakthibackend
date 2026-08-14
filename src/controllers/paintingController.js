@@ -14,7 +14,7 @@ async function listPaintings(req, res, next) {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(parseInt(req.query.limit, 10) || 12, 100);
 
-    const filter = { status: 'active' };
+    const filter = { status: 'active', blocked: { $ne: true } };
 
     if (category) {
       if (mongoose.isValidObjectId(category)) {
@@ -72,7 +72,11 @@ async function listPaintings(req, res, next) {
 /** GET /api/paintings/:id — public */
 async function getPainting(req, res, next) {
   try {
-    const painting = await Painting.findOne({ _id: req.params.id, status: { $ne: 'removed' } })
+    const painting = await Painting.findOne({
+      _id: req.params.id,
+      status: { $ne: 'removed' },
+      blocked: { $ne: true },
+    })
       .populate('category', PUBLIC_CATEGORY_FIELDS)
       .populate('sellerId', PUBLIC_SELLER_FIELDS);
 
@@ -93,7 +97,11 @@ async function getArtistProfile(req, res, next) {
 
     if (!artist) throw new ApiError(404, 'Artist not found.');
 
-    const paintings = await Painting.find({ sellerId: artist._id, status: 'active' })
+    const paintings = await Painting.find({
+      sellerId: artist._id,
+      status: 'active',
+      blocked: { $ne: true },
+    })
       .populate('category', PUBLIC_CATEGORY_FIELDS)
       .sort({ createdAt: -1 });
 

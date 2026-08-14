@@ -66,12 +66,13 @@ async function getSellerStatus(req, res, next) {
 /** PUT /api/seller/profile (auth: approved seller) */
 async function updateSellerProfile(req, res, next) {
   try {
-    const { sellerBio, mobile, portfolioLinks, sellerProfileImage } = req.body;
+    const { sellerBio, mobile, portfolioLinks, sellerProfileImage, pickupAddress } = req.body;
 
     req.user.sellerBio = sellerBio;
     req.user.mobile = mobile;
     req.user.portfolioLinks = portfolioLinks || [];
     if (sellerProfileImage !== undefined) req.user.sellerProfileImage = sellerProfileImage;
+    if (pickupAddress !== undefined) req.user.pickupAddress = pickupAddress;
     await req.user.save();
 
     res.status(200).json({ user: req.user.toJSON() });

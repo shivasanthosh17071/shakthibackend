@@ -224,6 +224,57 @@ function newsletterAdminNotifyTemplate({ email }) {
   };
 }
 
+function paintingBlockedTemplate({ name, paintingTitle, reason }) {
+  return {
+    subject: `Your listing "${paintingTitle}" has been blocked`,
+    html: baseLayout({
+      title: `Hi ${name}, a listing needs your attention`,
+      bodyHtml: `
+        <p>Your painting <strong>${paintingTitle}</strong> has been blocked and is no longer
+        visible to buyers.</p>
+        <p><strong>Reason:</strong> ${reason}</p>
+        <p>You can still view and edit it from your seller dashboard. It will go back live as soon
+        as an admin unblocks it.</p>`,
+    }),
+  };
+}
+
+function paintingUnblockedTemplate({ name, paintingTitle }) {
+  return {
+    subject: `Your listing "${paintingTitle}" is live again`,
+    html: baseLayout({
+      title: `Good news, ${name}!`,
+      bodyHtml: `
+        <p>Your painting <strong>${paintingTitle}</strong> has been unblocked and is visible to
+        buyers again.</p>`,
+    }),
+  };
+}
+
+function accountBlockedTemplate({ name, reason }) {
+  return {
+    subject: 'Your Shakti Crafts account has been blocked',
+    html: baseLayout({
+      title: `Hi ${name}`,
+      bodyHtml: `
+        <p>Your account has been blocked and you will not be able to log in until it's
+        reinstated.</p>
+        <p><strong>Reason:</strong> ${reason}</p>
+        <p>If you believe this is a mistake, please reply to this email.</p>`,
+    }),
+  };
+}
+
+function accountUnblockedTemplate({ name }) {
+  return {
+    subject: 'Your Shakti Crafts account has been reinstated',
+    html: baseLayout({
+      title: `Welcome back, ${name}!`,
+      bodyHtml: `<p>Your account has been unblocked. You can log in as usual.</p>`,
+    }),
+  };
+}
+
 module.exports = {
   verifyEmailTemplate,
   sellerApplicationReceivedTemplate,
@@ -237,4 +288,8 @@ module.exports = {
   orderShippedTemplate,
   orderDeliveredTemplate,
   newsletterAdminNotifyTemplate,
+  paintingBlockedTemplate,
+  paintingUnblockedTemplate,
+  accountBlockedTemplate,
+  accountUnblockedTemplate,
 };

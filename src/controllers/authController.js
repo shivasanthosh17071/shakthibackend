@@ -125,6 +125,10 @@ async function login(req, res, next) {
       throw new ApiError(403, 'Please verify your email before logging in. Check your inbox for the verification link.');
     }
 
+    if (user.blocked) {
+      throw new ApiError(403, `Your account has been blocked.${user.blockReason ? ` Reason: ${user.blockReason}` : ''}`);
+    }
+
     const token = signAuthToken({
       userId: user._id,
       role: user.role,

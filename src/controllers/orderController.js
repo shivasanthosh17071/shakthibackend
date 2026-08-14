@@ -34,7 +34,7 @@ async function createOrder(req, res, next) {
   try {
     const { paintingId, shippingAddress, paymentMethod } = req.body;
 
-    const painting = await Painting.findById(paintingId).populate('sellerId', 'email name');
+    const painting = await Painting.findById(paintingId).populate('sellerId', 'email name pickupAddress');
     if (!painting) throw new ApiError(404, 'Painting not found.');
     if (painting.status !== 'active') {
       throw new ApiError(400, 'This painting is no longer available for purchase.');
@@ -46,6 +46,7 @@ async function createOrder(req, res, next) {
       sellerId: painting.sellerId._id,
       amount: painting.price,
       shippingAddress,
+      pickupAddress: painting.sellerId.pickupAddress,
       paymentMethod,
       orderStatus: 'placed',
       paymentStatus: 'pending',

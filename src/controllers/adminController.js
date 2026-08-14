@@ -3,7 +3,14 @@ const Painting = require('../models/Painting');
 const Order = require('../models/Order');
 const { ApiError } = require('../middleware/errorHandler');
 const { sendMail } = require('../config/mailer');
-const { sellerApprovedTemplate, sellerRejectedTemplate } = require('../utils/emailTemplates');
+const {
+  sellerApprovedTemplate,
+  sellerRejectedTemplate,
+  paintingBlockedTemplate,
+  paintingUnblockedTemplate,
+  accountBlockedTemplate,
+  accountUnblockedTemplate,
+} = require('../utils/emailTemplates');
 
 /** GET /api/admin/sellers/pending */
 async function listPendingSellers(req, res, next) {
@@ -144,6 +151,98 @@ async function listAllOrders(req, res, next) {
   }
 }
 
+/** PUT /api/admin/paintings/:id/block */
+async function blockPainting(req, res, next) {
+  try {
+    const { reason } = req.body;
+
+    const painting = await Painting.findById(req.params.id).populate('sellerId', 'name email');
+    if (!painting) throw new ApiError(404, 'Painting not found.');
+
+    painting.blocked = true;
+    painting.blockReason = reason;
+    painting.blockedAt = new Date();
+    await painting.save();
+
+    const { subject, html } = paintingBlockedTemplate({
+      name: painting.sellerId.name,
+      paintingTitle: painting.title,
+      reason,
+    });
+    await sendMail({ to: painting.sellerId.email, subject, html });
+
+    res.status(200).json({ painting });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** PUT /api/admin/paintings/:id/unblock */
+async function unblockPainting(req, res, next) {
+  try {
+    const painting = await Painting.findById(req.params.id).populate('sellerId', 'name email');
+    if (!painting) throw new ApiError(404, 'Painting not found.');
+
+    painting.blocked = false;
+    painting.blockReason = undefined;
+    painting.blockedAt = undefined;
+    await painting.save();
+
+    const { subject, html } = paintingUnblockedTemplate({
+      name: painting.sellerId.name,
+      paintingTitle: painting.title,
+    });
+    await sendMail({ to: painting.sellerId.email, subject, html });
+
+    res.status(200).json({ painting });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** PUT /api/admin/users/:id/block */
+async function blockUser(req, res, next) {
+  try {
+    const { reason } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) throw new ApiError(404, 'User not found.');
+    if (user.role === 'admin') throw new ApiError(400, 'Cannot block an admin account.');
+
+    user.blocked = true;
+    user.blockReason = reason;
+    user.blockedAt = new Date();
+    await user.save();
+
+    const { subject, html } = accountBlockedTemplate({ name: user.name, reason });
+    await sendMail({ to: user.email, subject, html });
+
+    res.status(200).json({ user: user.toJSON() });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** PUT /api/admin/users/:id/unblock */
+async function unblockUser(req, res, next) {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) throw new ApiError(404, 'User not found.');
+
+    user.blocked = false;
+    user.blockReason = undefined;
+    user.blockedAt = undefined;
+    await user.save();
+
+    const { subject, html } = accountUnblockedTemplate({ name: user.name });
+    await sendMail({ to: user.email, subject, html });
+
+    res.status(200).json({ user: user.toJSON() });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   listPendingSellers,
   approveSeller,
@@ -151,4 +250,8 @@ module.exports = {
   listUsers,
   listAllPaintings,
   listAllOrders,
+  blockPainting,
+  unblockPainting,
+  blockUser,
+  unblockUser,
 };

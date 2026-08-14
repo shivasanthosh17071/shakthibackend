@@ -19,6 +19,13 @@ const paintingSchema = new mongoose.Schema(
       enum: ['draft', 'active', 'sold', 'removed'],
       default: 'active',
     },
+
+    // Admin moderation — independent of the seller's own status so a block
+    // survives the seller toggling draft/active, and unblocking restores
+    // whatever visibility the painting already had.
+    blocked: { type: Boolean, default: false },
+    blockReason: { type: String },
+    blockedAt: { type: Date },
   },
   { timestamps: true }
 );
